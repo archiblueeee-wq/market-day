@@ -45,18 +45,21 @@ button:focus-visible{outline:4px solid var(--green);outline-offset:3px}
 .mode-btn:active{transform:translateY(3px)}
 
 /* scene */
-.scene{position:relative;flex:1 1 auto;min-height:210px;container-type:size;margin-top:8px;border-radius:24px;overflow:hidden;
+.scene{position:relative;flex:1 1 auto;min-height:210px;container-type:size;display:flex;flex-direction:column;margin-top:8px;border-radius:24px;overflow:hidden;
   background:linear-gradient(var(--sky),#e4f4fa 60%,var(--paper-2) 60%)}
 .awning{position:absolute;inset:0 0 auto;height:64px;
   background:repeating-linear-gradient(90deg,var(--red) 0 44px,#fff 44px 88px);}
 .awning::after{content:"";position:absolute;left:0;right:0;bottom:-18px;height:20px;
   background:radial-gradient(circle at 22px 0,var(--red) 21px,transparent 22px) 0 0/88px 20px repeat-x,
              radial-gradient(circle at 66px 0,#fff 21px,transparent 22px) 0 0/88px 20px repeat-x}
-.sign{position:absolute;top:86px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;
+/* the bubble sits in its own row above the cat, so it can never cover Nuri */
+.scene-top{position:relative;z-index:4;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:78px 4% 10px}
+.stage{position:relative;flex:1 1 auto;min-height:0}
+.sign{background:var(--green);color:#fff;
   font-family:var(--f-display);font-size:clamp(16px,4vw,22px);padding:6px 18px;border-radius:12px;box-shadow:0 4px 0 var(--green-d);white-space:nowrap;z-index:1}
-.cat-wrap{position:absolute;left:50%;bottom:20%;transform:translateX(-50%);height:min(54%,340px);aspect-ratio:200/220;max-width:70%;z-index:2}
+.cat-wrap{position:absolute;left:50%;bottom:0;transform:translate(-50%,23%);height:min(118%,400px);aspect-ratio:200/220;max-width:80%;z-index:2}
 .cat-wrap svg{width:100%;height:100%;overflow:visible}
-.counter{position:absolute;left:0;right:0;bottom:0;height:26%;background:var(--wood);border-top:10px solid var(--wood-d);z-index:3;
+.counter{position:relative;flex:0 0 24%;background:var(--wood);border-top:10px solid var(--wood-d);z-index:3;
   background-image:repeating-linear-gradient(90deg,transparent 0 60px,rgba(0,0,0,.06) 60px 62px)}
 .tray{position:absolute;left:50%;top:10%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:4px;min-width:120px;height:72%;padding:0 14px;
   background:var(--paper-2);border-radius:18px;box-shadow:inset 0 -4px 0 #ead7bf}
@@ -67,9 +70,10 @@ button:focus-visible{outline:4px solid var(--green);outline-offset:3px}
 .price-tag{position:absolute;right:10px;top:-34px;background:var(--yellow);font-family:var(--f-en);font-weight:700;font-size:22px;padding:4px 12px;border-radius:10px;transform:rotate(6deg);box-shadow:0 3px 0 #d9a900}
 
 /* speech bubble */
-.bubble{position:absolute;left:4%;right:4%;top:128px;margin:0 auto;max-width:440px;z-index:4;background:#fff;border-radius:22px;padding:10px 16px 10px;
+.bubble{position:relative;width:100%;max-width:440px;min-height:88px;display:flex;flex-direction:column;justify-content:center;z-index:4;background:#fff;border-radius:22px;padding:10px 16px 10px;
   box-shadow:0 5px 0 rgba(0,0,0,.08);text-align:center;transform-origin:50% 100%;opacity:0;transform:scale(.6);transition:opacity .2s,transform .25s cubic-bezier(.3,1.6,.6,1)}
 .bubble.show{opacity:1;transform:scale(1)}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-11px;margin-left:-12px;border:12px solid transparent;border-bottom:0;border-top-color:#fff}
 .bubble .en{font-family:var(--f-en);font-weight:700;font-size:clamp(20px,5.4vw,28px);line-height:1.2;text-wrap:balance}
 .bubble .ko{font-size:15px;color:var(--soft);margin-top:2px}
 
@@ -201,9 +205,8 @@ button.coin:active{transform:scale(.9)}
 
 /* short scenes (small phones): tuck the sign away, raise the bubble */
 @container (max-height:340px){
-  .awning{height:40px}.sign{display:none}.bubble{top:46px;padding:6px 12px}
+  .awning{height:40px}.sign{display:none}.scene-top{padding-top:46px}.bubble{padding:6px 12px;min-height:64px}
   .bubble .en{font-size:clamp(17px,4.6vw,22px)}.bubble .ko{font-size:13px}
-  .cat-wrap{height:50%;bottom:18%}
 }
 /* small phones */
 @media (max-height:700px){
@@ -218,8 +221,8 @@ button.coin:active{transform:scale(.9)}
 @media (min-width:700px) and (min-height:800px){
   #app{padding-block:16px}
   .top .chip{font-size:22px}.top .chip .ic{font-size:28px}
-  .awning{height:80px}.sign{top:106px;font-size:28px;padding:8px 24px}
-  .bubble{top:160px;max-width:560px;padding:14px 22px}.bubble .en{font-size:38px}.bubble .ko{font-size:19px}
+  .awning{height:80px}.scene-top{padding-top:98px;gap:12px}.sign{font-size:28px;padding:8px 24px}
+  .bubble{max-width:560px;min-height:120px;padding:14px 22px}.bubble .en{font-size:38px}.bubble .ko{font-size:19px}
   .panel{max-height:46%}
   .card{padding:18px 22px 16px 100px;border-radius:30px}.card .en{font-size:52px}.card .ko{font-size:21px}.card .ask{font-size:34px}.card.self .en{font-size:42px}.card.self{padding-right:110px}.card .ask-pic{font-size:72px}.card .ask-pic svg{width:76px;height:76px}.hint-btn{font-size:17px}
   .bird{width:78px;height:78px;left:12px}
@@ -255,9 +258,11 @@ button.coin:active{transform:scale(.9)}
 
   <div class="scene" id="scene">
     <div class="awning"></div>
-    <div class="sign">NURI'S MARKET</div>
-    <div class="bubble" id="bubble"><div class="en" id="bubbleEn"></div><div class="ko" id="bubbleKo"></div></div>
-    <div class="cat-wrap" id="cat"></div>
+    <div class="scene-top">
+      <div class="sign">NURI'S MARKET</div>
+      <div class="bubble" id="bubble"><div class="en" id="bubbleEn"></div><div class="ko" id="bubbleKo"></div></div>
+    </div>
+    <div class="stage"><div class="cat-wrap" id="cat"></div></div>
     <div class="cheer" id="cheer"></div>
     <div class="counter"><div class="tray" id="tray"></div></div>
   </div>
@@ -653,6 +658,7 @@ function confetti(){
 }
 
 /* ---------- the conversation ---------- */
+let roundNo = 0;
 async function round(first){
   tray.innerHTML = "";
   await nuriSay(first ? "What can I get you?" : "What else can I get you?", "무엇을 드릴까요?");
@@ -661,11 +667,12 @@ async function round(first){
 
   const koName = it.flower ? `${KO[it.color]} 꽃` : KO[it.name];
   const lvl1 = await kidTurn({
-    en: `I want ${withArticle(it)}!`,
-    ko: `${koName} 주세요!`,
-    ask: `${josa(koName,"을","를")} 달라고 말해 볼까?`,
+    /* take turns: "I want a ..." then "I wanna buy a ..." */
+    ...(roundNo++ % 2 === 0
+      ? {en:`I want ${withArticle(it)}!`, ko:`${koName} 주세요!`, ask:`${josa(koName,"을","를")} 달라고 말해 볼까?`}
+      : {en:`I wanna buy ${withArticle(it)}!`, ko:`${josa(koName,"을","를")} 살래요!`, ask:`${josa(koName,"을","를")} 사고 싶다고 말해 볼까?`}),
     pic: picHTML(it),
-    keys: [...it.name.split(" "), it.name.replace(/s$/,""), "want","wanna","flower"]
+    keys: [...it.name.split(" "), it.name.replace(/s$/,""), "want","wanna","buy","by","bye","flower"]
   });
   const p1 = lvl1 === "great" ? pick(PRAISE) : pick(SOFT_PRAISE);
   await nuriSay(`${p1[0]} ${it.flower ? `${withArticle(it)[0].toUpperCase()+withArticle(it).slice(1)}! So pretty!` : `Oh, ${withArticle(it)}! Good choice!`}`,

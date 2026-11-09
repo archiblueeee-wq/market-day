@@ -4,7 +4,7 @@
 
 **바로 하기:** https://archiblueeee-wq.github.io/market-day/
 
-연습하는 표현: Hello! · I want a carrot! · I want a red flower! · How much is it? · Thank you!
+연습하는 표현: Hello! · I want a carrot! · I wanna buy a red flower! · How much is it? · Thank you!
 
 두 가지 모드
 - **따라 말하기**: 노란 새가 문장을 먼저 읽어줘요.
