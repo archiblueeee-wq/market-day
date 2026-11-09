@@ -42,7 +42,20 @@ button:focus-visible{outline:4px solid var(--green);outline-offset:3px}
 #basket{position:relative}
 #basket.bump{animation:bump .5s}
 .toggle{white-space:nowrap;font-size:clamp(12px,3.4vw,15px);color:var(--soft);padding:6px 10px;border-radius:999px;border:2px solid #ead7bf;background:var(--paper-2)}
-.toggle[aria-pressed="true"]{color:var(--green-d);border-color:var(--green)}
+.toggle{color:var(--green-d);border-color:var(--green)}
+.card .ask{font-size:clamp(20px,5.4vw,26px);line-height:1.3;color:var(--ink);text-wrap:balance}
+.card .ask-pic{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:44px;line-height:1}
+.card .ask-pic svg{width:48px;height:48px;display:block}
+.card.self{padding-right:70px}
+.card.self .en{font-size:clamp(22px,6vw,30px);margin-top:4px}
+.card .en.hidden-en span{color:transparent;background:#efe3d2;border-radius:8px}
+.hint-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px;color:var(--soft)}
+.modes{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.mode-btn{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:150px;padding:14px 20px;border-radius:24px;color:#fff;font-family:var(--f-ko);font-size:24px;line-height:1.2}
+.mode-btn small{font-size:14px;opacity:.9}
+.mode-btn.follow{background:var(--green);box-shadow:0 6px 0 var(--green-d)}
+.mode-btn.self{background:var(--red);box-shadow:0 6px 0 #b52a18}
+.mode-btn:active{transform:translateY(3px)}
 
 /* scene */
 .scene{position:relative;flex:1 1 auto;min-height:210px;container-type:size;margin-top:8px;border-radius:24px;overflow:hidden;
@@ -196,7 +209,7 @@ button.coin:active{transform:scale(.9)}
   .awning{height:80px}.sign{top:106px;font-size:28px;padding:8px 24px}
   .bubble{top:160px;max-width:560px;padding:14px 22px}.bubble .en{font-size:38px}.bubble .ko{font-size:19px}
   .panel{max-height:46%}
-  .card{padding:18px 22px 16px 100px;border-radius:30px}.card .en{font-size:52px}.card .ko{font-size:21px}
+  .card{padding:18px 22px 16px 100px;border-radius:30px}.card .en{font-size:52px}.card .ko{font-size:21px}.card .ask{font-size:34px}.card.self .en{font-size:42px}.card.self{padding-right:110px}.card .ask-pic{font-size:72px}.card .ask-pic svg{width:76px;height:76px}.hint-btn{font-size:17px}
   .bird{width:78px;height:78px;left:12px}
   .mic{width:136px;height:136px}.mic svg{width:60px;height:60px}.round{width:84px;height:84px}.round svg{width:40px;height:40px}
   .said{font-size:20px;padding:14px 20px}.said.big{font-size:24px}.mic-label,.hint{font-size:21px}
@@ -222,7 +235,7 @@ button.coin:active{transform:scale(.9)}
   <div class="top">
     <div class="logo">Market Day</div>
     <div class="top-right">
-      <button class="toggle" id="modelToggle" aria-pressed="true" title="말하기 전에 새 친구가 먼저 들려줘요">먼저 들려주기</button>
+      <button class="toggle" id="modeBtn" title="눌러서 모드 바꾸기">따라 말하기</button>
       <div class="chip" id="basket" aria-label="산 물건"><span class="ic">🧺</span><span id="basketCount">0</span></div>
       <div class="chip" aria-label="받은 별"><span class="ic">⭐</span><span id="starCount">0</span></div>
     </div>
@@ -243,10 +256,14 @@ button.coin:active{transform:scale(.9)}
   <div class="cat-mini" id="catMini"></div>
   <h1>English<br>Market Day</h1>
   <div class="date">November 13th</div>
-  <button class="big-btn" id="startBtn">시작하기 ▶</button>
+  <div class="modes">
+    <button class="mode-btn follow" data-mode="follow">따라 말하기<small>새가 먼저 읽어줘요</small></button>
+    <button class="mode-btn self" data-mode="self">스스로 말하기<small>혼자 생각해서 말해요</small></button>
+  </div>
   <div class="notes">
     <b>부모님께</b><br>
     고양이 가게 주인 <b>누리</b>와 영어로 물건을 사 보는 놀이예요. 빨간 마이크 버튼을 누르고 말하면 누리가 들어줘요.<br>
+    <b>따라 말하기</b>는 노란 새가 문장을 먼저 읽어주고, <b>스스로 말하기</b>는 문장을 가려 두고 그림과 우리말 질문만 보여줘요. 한 번 안 들리면 새가 힌트를 줘요. 위쪽 버튼으로 언제든 바꿀 수 있어요.<br>
     발음이 정확하지 않아도 <b>목소리만 들리면 항상 칭찬</b>하고 다음으로 넘어가요. 잘 안 들리면 아래 <b>"말했어요"</b> 버튼을 눌러 주세요.
   </div>
 </div>
@@ -326,13 +343,16 @@ cat.innerHTML = CAT_SVG; $("#catMini").innerHTML = CAT_SVG;
 const bubble = $("#bubble");
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const store = {get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let stars = store.get("mdStars",0), bought = store.get("mdBought",0), modelFirst = store.get("mdModel",true);
+let stars = store.get("mdStars",0), bought = store.get("mdBought",0), mode = store.get("mdMode","follow");
 const renderCounts = () => { $("#starCount").textContent = stars; $("#basketCount").textContent = bought; };
 renderCounts();
-const modelBtn = $("#modelToggle");
-const syncModel = () => modelBtn.setAttribute("aria-pressed", String(modelFirst));
-syncModel();
-modelBtn.onclick = () => { modelFirst = !modelFirst; store.set("mdModel", modelFirst); syncModel(); };
+const modeBtn = $("#modeBtn");
+const syncMode = () => { modeBtn.textContent = mode === "self" ? "스스로 말하기" : "따라 말하기"; };
+const setMode = m => { mode = m; store.set("mdMode", m); syncMode(); };
+syncMode();
+modeBtn.onclick = () => setMode(mode === "self" ? "follow" : "self");
+/* Korean particle helper: 을/를 depending on the final syllable */
+const josa = (w, a, b) => { const c = w.charCodeAt(w.length-1) - 0xAC00; return w + (c >= 0 && c <= 11171 && c % 28 ? a : b); };
 
 /* ---------- voice out ---------- */
 const synth = window.speechSynthesis;
@@ -384,19 +404,24 @@ const PRAISE = [["Wow, great!","우와, 잘했어!"],["Super!","최고야!"],["I
 const SOFT_PRAISE = [["Good try! I heard you!","잘했어! 다 들었어!"],["Great voice!","목소리 멋져!"],["Yes! Good job!","응! 잘했어!"]];
 const pick = a => a[Math.floor(Math.random()*a.length)];
 
-function kidTurn(phrase, ko, keys){
+function kidTurn({en: phrase, ko, ask, keys, pic = ""}){
   return new Promise(resolve => {
     let misses = 0, rec = null, finished = false;
+    const self = mode === "self";
     const words = phrase.split(" ");
     panel.innerHTML = `
       <div class="view">
-        <div class="card">
+        <div class="card${self ? " self" : ""}">
           <div class="bird" id="bird">${BIRD_SVG}</div>
-          <div class="en" id="phr">${words.map(w=>`<span>${w}</span>`).join("")}</div>
-          <div class="ko">${ko}</div>
+          ${self ? `<div class="ask">${ask}</div>` : ""}
+          <div class="en${self ? " hidden-en" : ""}" id="phr">${words.map(w=>`<span>${w}</span>`).join("")}</div>
+          ${self ? "" : `<div class="ko">${ko}</div>`}
+          ${self && pic ? `<div class="ask-pic">${pic}</div>` : ""}
         </div>
         <div class="actions">
-          <button class="round" id="listenBtn" aria-label="다시 듣기">${ICON.speaker}</button>
+          ${self
+            ? `<button class="round hint-btn" id="listenBtn" aria-label="힌트 듣기">${ICON.speaker}</button>`
+            : `<button class="round" id="listenBtn" aria-label="다시 듣기">${ICON.speaker}</button>`}
           <button class="mic" id="micBtn" aria-label="말하기">${ICON.mic}<span class="bars"><i></i><i></i><i></i><i></i></span></button>
           <button class="said" id="saidBtn">말했어요</button>
         </div>
@@ -406,18 +431,19 @@ function kidTurn(phrase, ko, keys){
     const lightWord = i => spans.forEach((s,j)=>s.classList.toggle("lit", j===i));
     const model = async () => {
       stopRec(); mic.classList.remove("ready");
+      $("#phr").classList.remove("hidden-en");
       await speak(phrase,{pitch:1.6,rate:.78,el:bird,onWord:lightWord});
       lightWord(-1); setReady();
     };
     const setReady = () => {
       if(finished) return;
       mic.classList.remove("listening","heard");
-      if(micOK){ mic.classList.add("ready"); mic.classList.remove("tap"); mic.innerHTML = ICON.mic + `<span class="bars"><i></i><i></i><i></i><i></i></span>`; label.textContent = "빨간 버튼을 누르고 말해 보세요"; }
+      if(micOK){ mic.classList.add("ready"); mic.classList.remove("tap"); mic.innerHTML = ICON.mic + `<span class="bars"><i></i><i></i><i></i><i></i></span>`; label.textContent = self && $("#phr").classList.contains("hidden-en") ? "생각나는 대로 말해 봐요! 모르면 스피커 힌트" : "빨간 버튼을 누르고 말해 보세요"; }
       else { mic.classList.add("ready","tap"); mic.innerHTML = ICON.check; label.textContent = tapNoteShown ? "말하고 나서 눌러요" : "이 화면에서는 마이크를 쓸 수 없어요. 아이가 말하면 초록 버튼을 눌러 주세요."; tapNoteShown = true; said.hidden = true; }
     };
     const success = (lvl) => {
       if(finished) return; finished = true; stopRec();
-      mic.classList.remove("ready","listening"); spans.forEach(s=>s.classList.add("lit"));
+      mic.classList.remove("ready","listening"); $("#phr").classList.remove("hidden-en"); spans.forEach(s=>s.classList.add("lit"));
       burst(mic); stars++; store.set("mdStars",stars); renderCounts();
       resolve(lvl);
     };
@@ -445,6 +471,7 @@ function kidTurn(phrase, ko, keys){
         } else {
           misses++;
           if(!micOK){ setReady(); return; }
+          if(self && misses === 1){ model(); label.textContent = "새가 힌트를 줬어요. 같이 말해 볼까?"; return; }
           setReady();
           label.textContent = misses === 1 ? "조금 더 크게 한 번 더 말해 볼까?" : "말했으면 노란 버튼을 눌러요";
           if(misses >= 2) said.classList.add("big");
@@ -460,7 +487,7 @@ function kidTurn(phrase, ko, keys){
     };
     said.onclick = () => success("good");
     $("#listenBtn").onclick = model;
-    if(modelFirst) model(); else setReady();
+    if(self) setReady(); else model();
   });
 }
 
@@ -559,14 +586,19 @@ async function round(first){
   const it = await chooseItem();
   showOnTray(it);
 
-  const buy = it.flower ? `I want a ${it.color} flower!` : "I wanna buy this!";
-  const buyKo = it.flower ? `${KO[it.color]} 꽃 주세요!` : "이거 살래요!";
-  const lvl1 = await kidTurn(buy, buyKo, ["want","wanna","buy","by","this","flower","please", ...(it.flower?[it.color]:[it.name])]);
+  const koName = it.flower ? `${KO[it.color]} 꽃` : KO[it.name];
+  const lvl1 = await kidTurn({
+    en: `I want ${withArticle(it)}!`,
+    ko: `${koName} 주세요!`,
+    ask: `${josa(koName,"을","를")} 달라고 말해 볼까?`,
+    pic: picHTML(it),
+    keys: [...it.name.split(" "), it.name.replace(/s$/,""), "want","wanna","flower"]
+  });
   const p1 = lvl1 === "great" ? pick(PRAISE) : pick(SOFT_PRAISE);
-  await nuriSay(`${p1[0]} ${it.flower ? `A ${it.color} flower! So pretty!` : `Oh, ${withArticle(it)}! Good choice!`}`,
+  await nuriSay(`${p1[0]} ${it.flower ? `${withArticle(it)[0].toUpperCase()+withArticle(it).slice(1)}! So pretty!` : `Oh, ${withArticle(it)}! Good choice!`}`,
                 `${p1[1]} ${it.flower ? `${KO[it.color]} 꽃! 예쁘다!` : `${KO[it.name]}! 좋은 선택이야!`}`);
 
-  const lvl2 = await kidTurn("How much is it?", "얼마예요?", ["how","much","mush","match","is it","many"]);
+  const lvl2 = await kidTurn({en:"How much is it?", ko:"얼마예요?", ask:"얼마인지 물어볼까?", pic:'<span style="font-family:var(--f-en);font-weight:700;color:var(--green)">$?</span>', keys:["how","much","mush","match","is it","many"]});
   const price = 1 + Math.floor(Math.random()*3);
   const p2 = lvl2 === "great" ? pick(PRAISE) : pick(SOFT_PRAISE);
   showOnTray(it, price);
@@ -577,13 +609,13 @@ async function round(first){
   burst(tray);
   await nuriSay("Here you are!", "여기 있어요!", {wave:true});
 
-  await kidTurn("Thank you!", "고마워요!", ["thank","thanks","tank","sank","fank","think","you"]);
+  await kidTurn({en:"Thank you!", ko:"고마워요!", ask:"고맙다고 말해 볼까?", keys:["thank","thanks","tank","sank","fank","think","you"]});
   const thing = $("#thing");
   if(thing){ const r = thing.getBoundingClientRect(); thing.style.visibility = "hidden"; await fly(picHTML(it), r, $("#basket").getBoundingClientRect(), 900); }
   bought++; store.set("mdBought",bought); renderCounts();
   $("#basket").classList.add("bump"); setTimeout(()=>$("#basket").classList.remove("bump"),600);
   confetti();
-  panel.innerHTML = `<div class="view"><div class="hint" style="font-size:22px;color:var(--green-d)">${it.flower?KO[it.color]+" 꽃":KO[it.name]}을(를) 샀어요! 🎉</div><button class="big-btn" id="againBtn">또 사러 가기 ▶</button></div>`;
+  panel.innerHTML = `<div class="view"><div class="hint" style="font-size:22px;color:var(--green-d)">${josa(koName,"을","를")} 샀어요! 🎉</div><button class="big-btn" id="againBtn">또 사러 가기 ▶</button></div>`;
   const againP = new Promise(r => $("#againBtn").onclick = r);
   await nuriSay("You're welcome! Come again!", "천만에요! 또 오세요!", {wave:true});
   await againP;
@@ -602,12 +634,12 @@ async function start(){
   panel.innerHTML = "";
   await sleep(300);
   await nuriSay("Hello! Welcome to my market!", "안녕! 누리 가게에 온 걸 환영해!", {wave:true});
-  const l = await kidTurn("Hello!", "안녕하세요!", ["hello","hi","hey","allo","hell","low","yellow"]);
+  const l = await kidTurn({en:"Hello!", ko:"안녕하세요!", ask:"누리에게 영어로 인사해 볼까?", pic:"👋", keys:["hello","hi","hey","allo","hell","low","yellow"]});
   const p = l === "great" ? pick(PRAISE) : pick(SOFT_PRAISE);
   await nuriSay(p[0], p[1]);
   round(true);
 }
-$("#startBtn").onclick = start;
+document.querySelectorAll(".mode-btn").forEach(b => b.onclick = () => { setMode(b.dataset.mode); start(); });
 })();
 </script>
 
