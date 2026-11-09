@@ -525,17 +525,37 @@ function kidTurn({en: phrase, ko, ask, keys, pic = ""}){
       resolve(lvl);
     };
     const stopRec = () => { if(rec){ try{ rec.onend = null; rec.abort(); }catch(e){} rec = null; } };
+    /* the phrase's last word tells us the child has finished the sentence */
+    const endWord = words[words.length-1].toLowerCase().replace(/[^a-z']/g, "");
+    const endKeys = [endWord, endWord.replace(/e?s$/, ""), ...(endWord === "hello" ? ["hi","hey","hallo"] : [])];
+    const has = (t, k) => new RegExp("\\b" + k + "\\b").test(t);
     const startRec = () => {
       if(synth) synth.cancel();
-      let heard = false, text = "";
+      let heard = false, spoke = false, text = "", quiet = null;
       try{ rec = new SR(); }catch(e){ micOK = false; setReady(); return; }
       rec.lang = "en-US"; rec.interimResults = true; rec.maxAlternatives = 5; rec.continuous = false;
       mic.classList.remove("ready"); mic.classList.add("listening");
       label.textContent = "듣고 있어요…";
-      const cap = setTimeout(() => { try{ rec && rec.stop(); }catch(e){} }, 7000);
+      /* finish as soon as we are fairly sure the child is done, without waiting for the browser's final answer */
+      const finishNow = () => {
+        if(finished) return;
+        clearTimeout(quiet); clearTimeout(cap);
+        const hit = keys.some(k => text.includes(k)) || endKeys.some(k => has(text, k));
+        success(hit ? "great" : "good");
+      };
+      const finishIn = ms => { clearTimeout(quiet); quiet = setTimeout(finishNow, ms); };
+      const cap = setTimeout(() => { if(heard) finishNow(); else { try{ rec && rec.stop(); }catch(e){} } }, 6000);
       const markHeard = () => { heard = true; mic.classList.add("heard"); };
-      rec.onsoundstart = markHeard; rec.onspeechstart = markHeard;
-      rec.onresult = e => { markHeard(); for(const r of e.results) for(const alt of r) text += " " + alt.transcript.toLowerCase(); };
+      rec.onsoundstart = markHeard;
+      rec.onspeechstart = () => { markHeard(); spoke = true; };
+      rec.onresult = e => {
+        markHeard(); spoke = true;
+        text = "";
+        for(const r of e.results) for(const alt of r) text += " " + alt.transcript.toLowerCase();
+        /* last word heard: done in a blink. Otherwise wait for a short pause. */
+        finishIn(endKeys.some(k => has(text, k)) ? 250 : 1100);
+      };
+      rec.onspeechend = () => { if(spoke) finishIn(350); };
       rec.onerror = e => {
         if(e.error === "not-allowed" || e.error === "service-not-allowed" || e.error === "audio-capture"){ micOK = false; }
       };
@@ -543,8 +563,7 @@ function kidTurn({en: phrase, ko, ask, keys, pic = ""}){
         clearTimeout(cap); rec = null;
         if(finished) return;
         if(heard || text.trim()){
-          const hit = keys.some(k => text.includes(k));
-          success(hit ? "great" : "good");
+          finishNow();
         } else {
           misses++;
           if(!micOK){ setReady(); return; }
