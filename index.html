@@ -89,6 +89,31 @@ button:focus-visible{outline:4px solid var(--green);outline-offset:3px}
 /* cat animation */
 .cat-body{animation:idle 2.4s ease-in-out infinite;transform-origin:100px 210px;transform-box:view-box}
 .cat-wrap.happy .cat-body{animation:hop .45s ease-out 2}
+/* reactions */
+.eyes-happy,.eyes-heart,.eyes-star{opacity:0}
+.joy .eyes,.love .eyes,.starry .eyes{opacity:0}
+.joy .eyes-happy,.love .eyes-heart,.starry .eyes-star{opacity:1}
+.love .eyes-heart,.starry .eyes-star{animation:pulse .4s ease-in-out infinite alternate;transform-origin:100px 90px;transform-box:view-box}
+.joy .smile,.love .smile,.starry .smile{opacity:0}
+.joy .mouth-open,.love .mouth-open,.starry .mouth-open{transform:scaleY(1.2)}
+.joy .blush,.love .blush,.starry .blush{opacity:1}
+.paw-l{transform-origin:50px 170px;transform-box:view-box}
+.cat-wrap.r-hop .cat-body{animation:hop .4s ease-out 3}
+.cat-wrap.r-spin .cat-body{animation:spin .9s cubic-bezier(.3,1.4,.5,1)}
+.cat-wrap.r-dance .cat-body{animation:dance .3s ease-in-out 5 alternate}
+.cat-wrap.r-clap .paw-l{animation:clapL .18s ease-in-out 8 alternate}
+.cat-wrap.r-clap .paw-r{animation:clapR .18s ease-in-out 8 alternate}
+.cat-wrap.r-clap .cat-body{animation:hop .36s ease-out 4}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.25)}}
+@keyframes spin{0%{transform:translateY(0) rotate(0)}45%{transform:translateY(-50px) rotate(200deg)}100%{transform:translateY(0) rotate(360deg)}}
+@keyframes dance{from{transform:rotate(-12deg) translateX(-8px)}to{transform:rotate(12deg) translateX(8px)}}
+@keyframes clapL{to{transform:translate(28px,-34px) rotate(20deg)}}
+@keyframes clapR{to{transform:translate(-28px,-34px) rotate(-20deg)}}
+.cheer{position:absolute;left:0;right:0;bottom:5%;z-index:6;text-align:center;pointer-events:none;font-family:var(--f-display);font-size:clamp(48px,15cqw,110px);line-height:1;
+  color:var(--yellow);-webkit-text-stroke:3px var(--red);paint-order:stroke fill;text-shadow:0 6px 0 rgba(0,0,0,.18);opacity:0}
+.cheer.go{animation:cheer 1.3s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes cheer{0%{opacity:0;transform:scale(.2) rotate(-14deg)}25%{opacity:1;transform:scale(1.15) rotate(4deg)}40%{transform:scale(1) rotate(-3deg)}80%{opacity:1;transform:scale(1) rotate(0)}100%{opacity:0;transform:scale(1.3) translateY(-30px)}}
+.emote{position:absolute;z-index:5;pointer-events:none;font-size:30px;line-height:1}
 .eyes{animation:blink 4s infinite;transform-origin:100px 92px;transform-box:view-box}
 .mouth-open{transform-origin:100px 124px;transform-box:view-box;transform:scaleY(0)}
 .talking .mouth-open{animation:talk .22s ease-in-out infinite alternate}
@@ -246,6 +271,7 @@ button.coin:active{transform:scale(.9)}
     <div class="sign">NURI'S MARKET</div>
     <div class="bubble" id="bubble"><div class="en" id="bubbleEn"></div><div class="ko" id="bubbleKo"></div></div>
     <div class="cat-wrap" id="cat"></div>
+    <div class="cheer" id="cheer"></div>
     <div class="counter"><div class="tray" id="tray"></div></div>
   </div>
 
@@ -291,11 +317,14 @@ const CAT_SVG = `
    <ellipse cx="76" cy="90" rx="8" ry="11" fill="#2b2a22"/><circle cx="79" cy="86" r="3" fill="#fff"/>
    <ellipse cx="124" cy="90" rx="8" ry="11" fill="#2b2a22"/><circle cx="127" cy="86" r="3" fill="#fff"/>
   </g>
-  <circle cx="58" cy="110" r="9" fill="#ff8e7a" opacity=".6"/><circle cx="142" cy="110" r="9" fill="#ff8e7a" opacity=".6"/>
+  <g class="eyes-happy"><path d="M66 94 q10 -16 20 0 M114 94 q10 -16 20 0" stroke="#2b2a22" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+  <g class="eyes-heart"><path d="M76 100 C62 90 68 78 76 87 C84 78 90 90 76 100Z" fill="#e8412c"/><path d="M124 100 C110 90 116 78 124 87 C132 78 138 90 124 100Z" fill="#e8412c"/></g>
+  <g class="eyes-star"><path d="M76 78 l3.5 8 8.5 .8 -6.5 5.6 2 8.4 -7.5 -4.5 -7.5 4.5 2 -8.4 -6.5 -5.6 8.5 -.8z M124 78 l3.5 8 8.5 .8 -6.5 5.6 2 8.4 -7.5 -4.5 -7.5 4.5 2 -8.4 -6.5 -5.6 8.5 -.8z" fill="#ffd21f" stroke="#c99200" stroke-width="1.5"/></g>
+  <circle class="blush" cx="58" cy="110" r="9" fill="#ff8e7a" opacity=".6"/><circle class="blush" cx="142" cy="110" r="9" fill="#ff8e7a" opacity=".6"/>
   <path d="M94 104 h12 l-6 7z" fill="#e8412c"/>
   <path class="smile" d="M88 116 q6 7 12 0 q6 7 12 0" stroke="#2b2a22" stroke-width="3" fill="none" stroke-linecap="round"/>
   <ellipse class="mouth-open" cx="100" cy="124" rx="9" ry="8" fill="#9b2d24"/>
-  <ellipse cx="60" cy="170" rx="16" ry="12" fill="#f6a144"/>
+  <g class="paw-l"><ellipse cx="60" cy="170" rx="16" ry="12" fill="#f6a144"/></g>
   <g class="paw-r"><ellipse cx="148" cy="168" rx="16" ry="12" fill="#f6a144"/></g>
  </g>
 </svg>`;
@@ -400,8 +429,64 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let micOK = !!SR;
 let tapNoteShown = false;
 
-const PRAISE = [["Wow, great!","우와, 잘했어!"],["Super!","최고야!"],["I heard you!","잘 들었어!"],["Good job!","잘했어!"],["Perfect!","완벽해!"],["Nice!","좋아!"]];
-const SOFT_PRAISE = [["Good try! I heard you!","잘했어! 다 들었어!"],["Great voice!","목소리 멋져!"],["Yes! Good job!","응! 잘했어!"]];
+const PRAISE = [["Wow, great!","우와, 잘했어!"],["Super!","최고야!"],["Perfect!","완벽해!"],["Awesome!","멋져!"],["Yay! You did it!","야호! 해냈다!"],["Woo-hoo! Amazing!","우후! 대단해!"],["High five!","하이파이브!"],["You are a star!","너는 스타야!"]];
+const SOFT_PRAISE = [["Good try! I heard you!","잘했어! 다 들었어!"],["Great voice!","목소리 멋져!"],["Yes! Good job!","응! 잘했어!"],["Wow, so brave!","우와, 용감하다!"],["Yay! I love it!","야호! 너무 좋아!"]];
+const CHEERS = ["GREAT!","SUPER!","WOW!","YES!","PERFECT!","AWESOME!","YAY!","COOL!"];
+
+/* ---------- sound effects (made in the browser, no files) ---------- */
+let actx = null;
+function audio(){
+  if(!actx){ try{ actx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(actx.state === "suspended") actx.resume().catch(()=>{});
+  return actx;
+}
+function tone(freq, at, dur, type="triangle", vol=.16, slideTo=0){
+  const a = audio(); if(!a) return;
+  const t = a.currentTime + at, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur + .05);
+}
+const sfx = {
+  pop(){ tone(420,0,.12,"sine",.2,900); },
+  coin(){ tone(988,0,.07,"square",.07); tone(1319,.07,.35,"square",.07); },
+  ding(){ [523,659,784,1047].forEach((f,i)=>tone(f,i*.07,.28,"triangle",.17)); tone(1568,.3,.4,"sine",.08); },
+  boing(){ tone(180,0,.35,"sine",.22,520); },
+  fanfare(){ [[523,0,.12],[523,.13,.12],[523,.26,.12],[659,.4,.3],[784,.72,.14],[659,.87,.14],[784,1.02,.5]].forEach(([f,t,d])=>{ tone(f,t,d,"square",.06); tone(f*2,t,d,"triangle",.06); }); },
+};
+
+/* ---------- Nuri's big reactions ---------- */
+let lastMove = "";
+function react(move){
+  const moves = ["r-hop","r-spin","r-dance","r-clap"].filter(m => m !== lastMove);
+  move = move || pick(moves); lastMove = move;
+  const face = pick(["joy","love","starry"]);
+  cat.classList.remove("r-hop","r-spin","r-dance","r-clap","joy","love","starry");
+  void cat.offsetWidth;
+  cat.classList.add(move, face);
+  if(move === "r-spin" || move === "r-hop") sfx.boing();
+  emotes(face === "love" ? "♥" : face === "starry" ? "★" : "♪", face === "love" ? "#e8412c" : face === "starry" ? "#ffb800" : "#2f8a3b");
+  clearTimeout(react.t); react.t = setTimeout(() => cat.classList.remove(move, face), 1700);
+}
+function emotes(ch, color){
+  const scene = $("#scene"), sr = scene.getBoundingClientRect(), cr = cat.getBoundingClientRect();
+  for(let i=0;i<7;i++){
+    const e = document.createElement("div"); e.className = "emote"; e.textContent = ch; e.style.color = color;
+    e.style.left = (cr.left - sr.left + cr.width*(.15 + Math.random()*.7)) + "px";
+    e.style.top = (cr.top - sr.top + cr.height*.25) + "px";
+    e.style.fontSize = (22 + Math.random()*22) + "px";
+    scene.appendChild(e);
+    const dx = (Math.random()-.5)*120, dy = -(70 + Math.random()*90);
+    e.animate([{transform:"translate(0,0) scale(.3)",opacity:0},{transform:`translate(${dx*.4}px,${dy*.4}px) scale(1.2)`,opacity:1,offset:.3},{transform:`translate(${dx}px,${dy}px) scale(.9) rotate(${dx/3}deg)`,opacity:0}],
+      {duration:1200 + Math.random()*500, delay:i*70, easing:"ease-out", fill:"backwards"}).finished.then(()=>e.remove(), ()=>e.remove());
+  }
+}
+function cheer(word){
+  const c = $("#cheer"); c.textContent = word || pick(CHEERS);
+  c.classList.remove("go"); void c.offsetWidth; c.classList.add("go");
+}
+function celebrate(word){ sfx.ding(); react(); cheer(word); }
 const pick = a => a[Math.floor(Math.random()*a.length)];
 
 function kidTurn({en: phrase, ko, ask, keys, pic = ""}){
@@ -444,7 +529,7 @@ function kidTurn({en: phrase, ko, ask, keys, pic = ""}){
     const success = (lvl) => {
       if(finished) return; finished = true; stopRec();
       mic.classList.remove("ready","listening"); $("#phr").classList.remove("hidden-en"); spans.forEach(s=>s.classList.add("lit"));
-      burst(mic); stars++; store.set("mdStars",stars); renderCounts();
+      burst(mic); celebrate(); stars++; store.set("mdStars",stars); renderCounts();
       resolve(lvl);
     };
     const stopRec = () => { if(rec){ try{ rec.onend = null; rec.abort(); }catch(e){} rec = null; } };
@@ -503,10 +588,10 @@ function chooseItem(){
           <div class="items">${shop.items.map((it,i)=>`<button class="item" data-i="${i}"><span class="pic">${picHTML(it)}</span><span class="word">${it.name}</span></button>`).join("")}</div>
           <div class="hint">사고 싶은 것을 눌러 보세요</div>
         </div>`;
-      panel.querySelectorAll(".tab").forEach(b => b.onclick = () => { currentTab = b.dataset.tab; draw(); });
+      panel.querySelectorAll(".tab").forEach(b => b.onclick = () => { sfx.pop(); currentTab = b.dataset.tab; draw(); });
       panel.querySelectorAll(".item").forEach(b => b.onclick = () => {
         const it = shop.items[+b.dataset.i];
-        speak(it.name, {pitch:1.6,rate:.85});
+        sfx.pop(); speak(it.name, {pitch:1.6,rate:.85});
         resolve(it);
       });
     };
@@ -533,7 +618,7 @@ function payCoins(n){
       paid++;
       const r = c.getBoundingClientRect(), tr = tray.getBoundingClientRect();
       fly(`<div class="coin" style="width:44px;height:44px;font-size:14px">$1</div>`, r, tr);
-      c.style.visibility = "hidden";
+      c.style.visibility = "hidden"; sfx.coin();
       $("#cnt").textContent = `${paid} / ${n}`;
       speak(NUM[paid][0].toUpperCase()+NUM[paid].slice(1)+"!", {pitch:1.3,rate:.95,el:cat});
       if(paid === n) setTimeout(resolve, 1100);
@@ -556,13 +641,14 @@ function fly(html, fromRect, toRect, dur=700){
 
 function burst(el){
   const r = el.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
-  for(let i=0;i<10;i++){
+  for(let i=0;i<16;i++){
     const s = document.createElement("div"); s.className = "star"; s.textContent = "★";
     s.style.left = cx + "px"; s.style.top = cy + "px"; document.body.appendChild(s);
-    const ang = Math.PI*2*i/10, d = 70 + Math.random()*50;
+    const ang = Math.PI*2*i/16, d = 80 + Math.random()*80;
+    s.style.fontSize = (22 + Math.random()*20) + "px"; s.style.color = pick(["#ffd21f","#ff8fb4","#7fd3ff","#ffd21f"]);
     s.animate([{transform:"translate(-50%,-50%) scale(.3)",opacity:1},{transform:`translate(calc(-50% + ${Math.cos(ang)*d}px), calc(-50% + ${Math.sin(ang)*d}px)) scale(1.2) rotate(180deg)`,opacity:0}],{duration:800,easing:"ease-out"}).finished.then(()=>s.remove());
   }
-  cat.classList.add("happy"); setTimeout(()=>cat.classList.remove("happy"),1000);
+
 }
 
 /* confetti */
@@ -606,7 +692,7 @@ async function round(first){
 
   await payCoins(price);
   showOnTray(it);
-  burst(tray);
+  burst(tray); sfx.ding(); react("r-clap");
   await nuriSay("Here you are!", "여기 있어요!", {wave:true});
 
   await kidTurn({en:"Thank you!", ko:"고마워요!", ask:"고맙다고 말해 볼까?", keys:["thank","thanks","tank","sank","fank","think","you"]});
@@ -614,7 +700,7 @@ async function round(first){
   if(thing){ const r = thing.getBoundingClientRect(); thing.style.visibility = "hidden"; await fly(picHTML(it), r, $("#basket").getBoundingClientRect(), 900); }
   bought++; store.set("mdBought",bought); renderCounts();
   $("#basket").classList.add("bump"); setTimeout(()=>$("#basket").classList.remove("bump"),600);
-  confetti();
+  confetti(); sfx.fanfare(); react("r-dance"); cheer("YAY!");
   panel.innerHTML = `<div class="view"><div class="hint" style="font-size:22px;color:var(--green-d)">${josa(koName,"을","를")} 샀어요! 🎉</div><button class="big-btn" id="againBtn">또 사러 가기 ▶</button></div>`;
   const againP = new Promise(r => $("#againBtn").onclick = r);
   await nuriSay("You're welcome! Come again!", "천만에요! 또 오세요!", {wave:true});
@@ -629,7 +715,7 @@ document.addEventListener("visibilitychange", () => { if(document.visibilityStat
 
 async function start(){
   $("#intro").hidden = true;
-  keepAwake();
+  keepAwake(); audio(); sfx.pop();
   if(synth){ try{ const u = new SpeechSynthesisUtterance(" "); u.volume = 0; synth.speak(u); }catch(e){} }
   panel.innerHTML = "";
   await sleep(300);
